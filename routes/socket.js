@@ -48,6 +48,8 @@ var userNames = (function () {
   };
 }());
 
+var users = [];
+
 // export function for listening to the socket
 module.exports = function (socket) {
   var name = userNames.getGuestName();
@@ -78,7 +80,7 @@ module.exports = function (socket) {
       userNames.free(oldName);
 
       name = data.name;
-      
+
       socket.broadcast.emit('change:name', {
         oldName: oldName,
         newName: name
@@ -90,6 +92,21 @@ module.exports = function (socket) {
     }
   });
 
+  // 회원가입 정보 처리 
+  socket.on('sign up', function (data) {
+    const { username, password } = data;
+    if (users[username]) {
+      callback({ success: false, message: '이미 존재하는 사용자입니다.' });
+    }
+
+    else {
+      users[username] = password;
+      console.log(users);
+      socket.emit('signUp:success',{
+      })
+    }
+  });
+
   // clean up when a user leaves, and broadcast it to other users
   socket.on('disconnect', function () {
     socket.broadcast.emit('user:left', {
@@ -98,3 +115,6 @@ module.exports = function (socket) {
     userNames.free(name);
   });
 };
+
+
+

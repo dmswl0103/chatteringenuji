@@ -8,6 +8,7 @@ var express = require('express');
 var http = require('http');
 
 var socket = require('./routes/socket.js');
+const socketIo = require('socket.io');
 
 var app = express();
 var server = http.createServer(app);
@@ -15,14 +16,15 @@ var server = http.createServer(app);
 /* Configuration */
 app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
-app.set('port', 3000);
+app.set('port', 3002);
 
 if (process.env.NODE_ENV === 'development') {
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 }
 
 /* Socket.io Communication */
-var io = require('socket.io').listen(server);
+//var io = require('socket.io').listen(server);
+const io = socketIo(server);
 io.sockets.on('connection', socket);
 
 /* Start server */
