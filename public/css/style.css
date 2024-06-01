@@ -40,11 +40,11 @@ body {
 .textinput {
     margin-left: 3%;
     width: calc(100% - 6%);
-    height: 40px;
+    height: 50px; /* 높이를 50px로 증가 */
     border: 1px solid #E0E0E0;
     border-radius: 20px;
     padding: 0 15px;
-    font-size: 16px;
+    font-size: 18px; /* 글자 크기를 18px로 증가 */
     box-sizing: border-box;
     outline: none;
     transition: all 0.3s ease;
@@ -53,6 +53,7 @@ body {
 .textinput:focus {
     border-color: #3B5998;
 }
+
 
 .appbox {
     display: flex;
@@ -100,3 +101,5 @@ button {
 button:hover {
     background-color: #333;
 }
+
+

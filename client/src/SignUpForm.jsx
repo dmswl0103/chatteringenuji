@@ -24,10 +24,16 @@ const SignUpForm = ({ isLogin }) => {
     };
   
     const handleSignUp = () => {
-      console.log('handleSignUp');
-      socket.emit('sign up', { username: user_id, password: pw }); // 변수명 수정: pw -> password
+      socket.emit('sign up', { username: user_id, password: pw }, (response) => {
+        if (response.success) {
+          // Call handleLogin directly if signup is successful
+          handleLogin();
+        } else {
+          setMessage(response.message);
+        }
+      });
     };
-  
+    
     const handleLogin = (e) => {
       e.preventDefault();
       // 사용자가 입력한 아이디와 비밀번호

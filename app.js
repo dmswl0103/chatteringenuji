@@ -70,7 +70,7 @@ app.post('/signup', (req, res) => {
 });
 
 app.post('/create_room', (req, res) => {
-  const { room } = req.body;
+  const { room, user_id } = req.body;
 
   // 방 이름이 이미 존재하는지 확인
   connection.query('SELECT * FROM chatroom WHERE room = ?', [room], (err, results) => {
@@ -82,7 +82,7 @@ app.post('/create_room', (req, res) => {
       res.status(400).send('Room already exists');
     } else {
       // 새로운 방 생성
-      connection.query('INSERT INTO chatroom (room) VALUES (?)', [room], (err) => {
+      connection.query("INSERT INTO chatroom (room, users) VALUES (?, ?)", [room, JSON.stringify([user_id])], (err) => {
         if (err) {
           console.error('Error creating room:', err);
           res.status(500).send('Database error');
@@ -94,6 +94,7 @@ app.post('/create_room', (req, res) => {
     }
   });
 });
+
 
 app.post('/send_message', (req, res) => {
   const { user_id, room, message } = req.body;

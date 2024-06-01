@@ -24,7 +24,7 @@ const MessageForm = ({ user, onMessageSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const message = { user, text };
+    const message = { user, text, room: user.currentRoom };
     onMessageSubmit(message);
     setText('');
   };
@@ -44,39 +44,39 @@ const MessageForm = ({ user, onMessageSubmit }) => {
   );
 };
 
-const ChangeNameForm = ({ onChangeName }) => {
-  const [newName, setNewName] = useState('');
+const UsersList = ({ room }) => {
+  const [users, setUsers] = useState([]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onChangeName(newName);
-    setNewName('');
-  };
+  useEffect(() => {
+    // Fetch users who are in the selected room
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`/users?room=${room}`);
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    fetchUsers();
+
+    // Clean up function to unsubscribe from updates when component unmounts
+    return () => {
+      setUsers([]);
+    };
+  }, [room]);
 
   return (
-    <div className='change_name_form'>
-      <h3> 아이디 변경 </h3>
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder='변경할 아이디 입력'
-          onChange={(e) => setNewName(e.target.value)}
-          value={newName}
-        />
-      </form>
+    <div className='users'>
+      <h3> 참여자들 </h3>
+      <ul>
+        {users.map((user, i) => (
+          <li key={i}>{user.user_id}</li>
+        ))}
+      </ul>
     </div>
   );
 };
-
-const UsersList = ({ users }) => (
-  <div className='users'>
-    <h3> 참여자들 </h3>
-    <ul>
-      {users.map((user, i) => (
-        <li key={i}>{user}</li>
-      ))}
-    </ul>
-  </div>
-);
 
 const RoomsList = ({ rooms, onSelectRoom, onCreateRoom }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,11 +109,9 @@ const RoomsList = ({ rooms, onSelectRoom, onCreateRoom }) => {
   };
 
   const handleCreateRoom = () => {
-    console.log(newRoomName);
     if (newRoomName.trim() !== '') {
       axios.post('/create_room', { room: newRoomName })
         .then(response => {
-          console.log(response);
           if (response.status === 201) {
             onCreateRoom(newRoomName);
             setNewRoomName('');
@@ -166,7 +164,7 @@ const ChatApp = ({ name }) => {
   const [user, setUser] = useState('');
   const [isLoggined, setIsLoggined] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [currentRoomName, setCurrentRoomName] = useState(''); // Add current room state
+  const [currentRoomName, setCurrentRoomName] = useState('');
 
   useEffect(() => {
     setUser(name);
@@ -211,22 +209,12 @@ const ChatApp = ({ name }) => {
     socket.emit('send:message', message);
   };
 
-  const handleChangeName = (newName) => {
-    socket.emit('change:name', { name: newName }, (result) => {
-      if (!result) {
-        return alert('There was an error changing your name');
-      }
-      setUser(newName);
-    });
-  };
-
   const handleCreateRoom = (newRoomName) => {
     setRooms((rooms) => [...rooms, newRoomName]);
   };
 
   const handleSelectRoom = (room) => {
     setCurrentRoomName(room);
-    setMessages([]); // Reset messages for the new room
     // Load messages for the selected room
     socket.emit('request:messages', { room }, (response) => {
       if (response.success) {
@@ -248,8 +236,7 @@ const ChatApp = ({ name }) => {
           />
         </div>
         <div className='center'>
-          <UsersList users={users} />
-          <ChangeNameForm onChangeName={handleChangeName} />
+          <UsersList room={currentRoomName} />
           <MessageList messages={messages} roomName={currentRoomName} />
           <MessageForm onMessageSubmit={handleMessageSubmit} user={user} />
         </div>
