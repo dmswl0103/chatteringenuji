@@ -5,16 +5,16 @@ import io from 'socket.io-client';
 const socket = io.connect();
 
 const SignUpForm = ({ isLogin }) => {
-    const [id, setId] = useState('');
-    const [password, setPassword] = useState('');
+    const [user_id, setId] = useState('');
+    const [pw, setPw] = useState('');
     const [message, setMessage] = useState('');
     const [historyUser, setHistoryUser] = useState({});
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      const newUsers = { ...historyUser, [id]: password };
+      const newUsers = { ...historyUser, [user_id]: pw };
   
-      if (historyUser[id]) {
+      if (historyUser[user_id]) {
         setMessage('이미 있는 아이디입니다.');
       } else {
         setMessage('회원 가입이 성공적으로 완료되었습니다');
@@ -25,27 +25,30 @@ const SignUpForm = ({ isLogin }) => {
   
     const handleSignUp = () => {
       console.log('handleSignUp');
-      socket.emit('sign up', { username: id, password });
+      socket.emit('sign up', { username: user_id, password: pw }); // 변수명 수정: pw -> password
     };
   
     const handleLogin = (e) => {
       e.preventDefault();
-      if (historyUser[id]) {
-        if (historyUser[id] === password) {
+      // 사용자가 입력한 아이디와 비밀번호
+      const userInput = {
+        username: user_id,
+        password: pw
+      };
+    
+      // 서버에 로그인 요청을 보냄
+      socket.emit('login', userInput, (response) => {
+        if (response.success) {
+          // 로그인이 성공한 경우
           setMessage('로그인 되었습니다.');
-          isLogin(id);
-
-          
-       
-
+          isLogin(user_id);
         } else {
-          setMessage('비밀번호가 일치하지 않습니다.');
-          
+          // 로그인이 실패한 경우
+          setMessage(response.message);
         }
-      } else {
-        setMessage('존재하지 않는 아이디입니다.');
-      }
+      });
     };
+    
   
     return (
       <div className='signup_form'>
@@ -58,7 +61,7 @@ const SignUpForm = ({ isLogin }) => {
                 type="text"
                 placeholder='ID 입력'
                 onChange={(e) => setId(e.target.value)}
-                value={id}
+                value={user_id}
               />
             </label>
           </div>
@@ -66,10 +69,10 @@ const SignUpForm = ({ isLogin }) => {
             <label>
               비밀번호 입력:
               <input
-                type="password"
+                type="password" // 입력 타입 수정: pw -> password
                 placeholder='비밀번호 입력'
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
+                onChange={(e) => setPw(e.target.value)}
+                value={pw}
               />
             </label>
           </div>
