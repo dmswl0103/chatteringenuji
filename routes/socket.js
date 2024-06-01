@@ -120,6 +120,7 @@ module.exports = function (socket, connection) {
 
   // 방 목록을 요청받아 전송
   socket.on('request:rooms', (callback) => {
+    console.log("dddd");
     connection.query('SELECT room FROM chatroom', (err, results) => {
       if (err) {
         console.error('Error fetching rooms:', err);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
 import axios from 'axios';
-
+import io from 'socket.io-client';
 const socket = io.connect();
 
 const Message = ({ user, text }) => (
@@ -11,9 +10,9 @@ const Message = ({ user, text }) => (
   </div>
 );
 
-const MessageList = ({ messages }) => (
+const MessageList = ({ messages, roomName }) => (
   <div className='messages'>
-    <h2> 채팅방 </h2>
+    <h2> {roomName} </h2>
     {messages.map((message, i) => (
       <Message key={i} user={message.user} text={message.text} />
     ))}
@@ -91,6 +90,7 @@ const RoomsList = ({ rooms, onSelectRoom, onCreateRoom }) => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    setNewRoomName(searchTerm);
     if (!rooms.includes(searchTerm) && searchTerm.trim() !== '') {
       setShowMessage(true);
     } else {
@@ -108,6 +108,28 @@ const RoomsList = ({ rooms, onSelectRoom, onCreateRoom }) => {
     }
   };
 
+  const handleCreateRoom = () => {
+    console.log(newRoomName);
+    if (newRoomName.trim() !== '') {
+      axios.post('/create_room', { room: newRoomName })
+        .then(response => {
+          console.log(response);
+          if (response.status === 201) {
+            onCreateRoom(newRoomName);
+            setNewRoomName('');
+            setShowMessage(false);
+          } else {
+            console.error('Error creating room:', response.data);
+          }
+        })
+        .catch(error => {
+          console.error('Error creating room:', error);
+        });
+    } else {
+      setShowMessage(true);
+    }
+  };
+
   return (
     <div className='roomlist'>
       <h1> 방 목록 </h1>
@@ -120,10 +142,10 @@ const RoomsList = ({ rooms, onSelectRoom, onCreateRoom }) => {
       </form>
       {showMessage && (
         <div className='message'>
-          해당 방이 존재하지 않습니다. 방을 개설하시겠습니까?
+          해당 방이 존재하지 않습니다. 방을 개설하시겠습니까? 
           <form onSubmit={handleCreateRoomSubmit}>
-            <button type="button" onClick={() => handleCreateRoom(true)}>예</button>
-            <button type="button" onClick={() => handleCreateRoom(false)}>아니오</button>
+            <button type="button" onClick={handleCreateRoom}>예</button>
+            <button type="button" onClick={() => setShowMessage(false)}>아니오</button> 
           </form>
         </div>
       )}
@@ -144,44 +166,49 @@ const ChatApp = ({ name }) => {
   const [user, setUser] = useState('');
   const [isLoggined, setIsLoggined] = useState(false);
   const [rooms, setRooms] = useState([]);
-  const [currentRoom, setCurrentRoom] = useState('');
+  const [currentRoomName, setCurrentRoomName] = useState(''); // Add current room state
 
   useEffect(() => {
     setUser(name);
-
-    // Fetch room list from the server
-    axios.get('/rooms')
-      .then(response => {
-        setRooms(response.data.rooms);
-      })
-      .catch(error => {
-        console.error('There was an error fetching the room list!', error);
-      });
 
     socket.on('init', (data) => {
       setUsers(data.users);
       setUser(data.name);
     });
+
     socket.on('send:message', (message) => {
       setMessages((messages) => [...messages, message]);
     });
+
     socket.on('user:join', (user) => {
       setUsers((users) => [...users, user]);
     });
+
     socket.on('user:left', (user) => {
       setUsers((users) => users.filter((u) => u !== user));
     });
+
     socket.on('change:name', ({ oldName, newName }) => {
       setUsers((users) => users.map((user) => (user === oldName ? newName : user)));
     });
+
     socket.on('signUp:success', () => {
       setIsLoggined(true);
     });
+
+    socket.emit('request:rooms', (response) => {
+      if (response.success) {
+        setRooms(response.rooms);
+      } else {
+        console.error('Error fetching rooms:', response.message);
+      }
+    });
+
   }, []);
 
   const handleMessageSubmit = (message) => {
     setMessages((messages) => [...messages, message]);
-    socket.emit('send:message', { ...message, room: currentRoom });
+    socket.emit('send:message', message);
   };
 
   const handleChangeName = (newName) => {
@@ -193,42 +220,37 @@ const ChatApp = ({ name }) => {
     });
   };
 
-  const handleSelectRoom = (room) => {
-    setCurrentRoom(room);
-    // Fetch messages for the selected room
-    axios.get(`/rooms/${room}/messages`)
-      .then(response => {
-        setMessages(response.data.messages);
-      })
-      .catch(error => {
-        console.error(`There was an error fetching messages for room ${room}!`, error);
-      });
+  const handleCreateRoom = (newRoomName) => {
+    setRooms((rooms) => [...rooms, newRoomName]);
   };
 
-  const handleCreateRoom = (newRoomName) => {
-    axios.post('/rooms', { room: newRoomName })
-      .then(response => {
-        if (response.status === 201) {
-          setRooms((rooms) => [...rooms, newRoomName]);
-          setCurrentRoom(newRoomName);
-          setMessages([]);
-        }
-      })
-      .catch(error => {
-        console.error('There was an error creating the room!', error);
-      });
+  const handleSelectRoom = (room) => {
+    setCurrentRoomName(room);
+    setMessages([]); // Reset messages for the new room
+    // Load messages for the selected room
+    socket.emit('request:messages', { room }, (response) => {
+      if (response.success) {
+        setMessages(response.messages);
+      } else {
+        console.error('Error fetching messages:', response.message);
+      }
+    });
   };
 
   return (
     <div>
       <div className='appbox'>
         <div className='searchroom'>
-          <RoomsList rooms={rooms} onSelectRoom={handleSelectRoom} onCreateRoom={handleCreateRoom} />
+          <RoomsList
+            rooms={rooms}
+            onSelectRoom={handleSelectRoom}
+            onCreateRoom={handleCreateRoom}
+          />
         </div>
         <div className='center'>
           <UsersList users={users} />
           <ChangeNameForm onChangeName={handleChangeName} />
-          <MessageList messages={messages} />
+          <MessageList messages={messages} roomName={currentRoomName} />
           <MessageForm onMessageSubmit={handleMessageSubmit} user={user} />
         </div>
       </div>
