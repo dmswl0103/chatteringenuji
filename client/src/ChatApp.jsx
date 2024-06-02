@@ -64,6 +64,7 @@ const MessageForm = ({ user, onMessageSubmit, currentRoom }) => {
         />
         <button type="submit">Send</button>
       </form>
+      
     </div>
   );
 };
