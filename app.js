@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 /* Express Routes */
 app.post('/register', (req, res) => {
   const { id, pw } = req.body;
-  console.log(req.body);
+  //console.log(req.body);
 
   connection.query('INSERT INTO signup (id, pw) VALUES (?, ?)', [id, pw], (err) => {
     if (err) {
@@ -122,7 +122,7 @@ app.get('/get_messages', (req, res) => {
 
 app.post('/send_message', (req, res) => {
   const { timestamp,user_id, room, message } = req.body;
-  console.log('timestamp!!:', timestamp);
+  //console.log('timestamp!!:', timestamp);
 
   connection.query('INSERT INTO chat (timestamp, user_id, room, message) VALUES (?, ?, ?, ?)', [timestamp, user_id, room, message], (err) => {
     if (err) {

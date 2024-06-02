@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 const socket = io.connect();
 
 const Message = ({ user, text ,time, logginedUser}) => {
-  console.log(time);  // time을 출력
+  //console.log(time);  // time을 출력
   return (
       <div>
           {user == logginedUser ? (
@@ -30,7 +30,7 @@ const Message = ({ user, text ,time, logginedUser}) => {
 
 
 const MessageList = ({ messages, roomName, logginedUser }) => {
-  console.log(messages);  // messages를 출력
+  //console.log(messages);  // messages를 출력
 
   return (
     <div className='messages'>
@@ -68,12 +68,16 @@ const MessageForm = ({ user, onMessageSubmit, currentRoom }) => {
   );
 };
 
+var curRoomName;
+
 const ChatApp = ({ name }) => {
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [user, setUser] = useState('');
   const [rooms, setRooms] = useState([]);
   const [currentRoomName, setCurrentRoomName] = useState('');
+
+
 
   useEffect(() => {
     setUser(name);
@@ -84,7 +88,9 @@ const ChatApp = ({ name }) => {
     });
 
     socket.on('send:message', (message) => {
-      setMessages((messages) => [...messages, message]);
+      if(message.message!=undefined){
+        handleMessageReceive(message);
+      }
     });
 
     socket.on('user:join', (user) => {
@@ -114,13 +120,27 @@ const ChatApp = ({ name }) => {
   }, []);
 
   useEffect(() => {
-    console.log('!!!messages', messages);
+    //console.log('!!!messages', messages);
 }, [messages]);
 
-  const handleMessageSubmit = (message) => {
-    console.log('@@@@@message',message);
-    setMessages((messages) => [...messages, message]);
+const handleMessageReceive = (message)=>{
+  //console.log('방이름체크');
+  //console.log(message.message.room);
+  //console.log(curRoomName);
+  if(curRoomName == message.message.room){
+    //console.log('#####받은 메시지: ', message.message);
+    //console.log("현재 메시지들 : ", messages);
+    setMessages((messages) => [...messages, message.message]);
+  }
+}
 
+  const handleMessageSubmit = (message) => {
+    //console.log('@@@@@message',message);
+    //console.log('@@@@@messages',messages);
+    setMessages((messages) => [...messages, message]);
+    socket.emit('send:message', {
+      message: message
+    });
     axios.post('/send_message', message)
       .then(response => {
         if (response.status !== 201) {
@@ -134,11 +154,14 @@ const ChatApp = ({ name }) => {
 
   const handleCreateRoom = (newRoomName) => {
     setRooms((rooms) => [...rooms, newRoomName]);
+    socket.emit('room:created', {
+    });
   };
 
   const handleSelectRoom = (room) => {
     setCurrentRoomName(room);
-
+    curRoomName = room;
+    //console.log("선택된 방:", curRoomName);
     // Load messages for the selected room
     axios.get('/get_messages', { params: { room } })
       .then(response => {

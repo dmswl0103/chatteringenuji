@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import io from 'socket.io-client';
+const socket = io.connect();
+
 const RoomList = ({ onSelectRoom, onCreateRoom }) => {
   const [rooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,6 +65,16 @@ const RoomList = ({ onSelectRoom, onCreateRoom }) => {
       setShowMessage(true);
     }
   };
+
+  socket.on('room:created',()=>{
+    axios.get('/get_rooms')
+      .then(response => {
+        setRooms(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching rooms:', error);
+      });
+  });
 
   return (
     <div className='roomlist'>

@@ -120,7 +120,7 @@ module.exports = function (socket, connection) {
 
   // 방 목록을 요청받아 전송
   socket.on('request:rooms', (callback) => {
-    console.log("dddd");
+    //console.log("dddd");
     connection.query('SELECT room FROM chatroom', (err, results) => {
       if (err) {
         console.error('Error fetching rooms:', err);
@@ -165,13 +165,15 @@ module.exports = function (socket, connection) {
 
   // 메시지를 방에 추가
   socket.on('send:message', (data) => {
-    const { user, text, room } = data;
-    connection.query('INSERT INTO chat (user_id, message, room) VALUES (?, ?, ?)', [user, text, room], (err) => {
-      if (err) {
-        console.error('Error inserting into messages:', err);
-      } else {
-        io.to(room).emit('send:message', { user, text });
-      }
+    //console.log('받아온메시지:', data.message);
+    socket.broadcast.emit('send:message', {
+      message:data.message
+    });
+  });
+
+  socket.on('room:created', ()=>{
+    socket.broadcast.emit('room:created', {
+      
     });
   });
 
