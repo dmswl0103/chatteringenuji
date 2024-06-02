@@ -5,28 +5,50 @@ import axios from 'axios';
 import io from 'socket.io-client';
 const socket = io.connect();
 
-const Message = ({ user, text }) => (
-  <div className="message">
-    <strong>{user} :</strong>
-    <span>{text}</span>
-  </div>
-);
+const Message = ({ user, text ,time, logginedUser}) => {
+  console.log(time);  // time을 출력
+  return (
+      <div>
+          {user == logginedUser ? (
+              <div className="MyMessage">
+                  <strong>{user} </strong>
+                  <span>{text} </span>
+      
+                  <span style={{color: 'gray', fontSize: 'small'}}>{time}</span>
+              </div>
+          ) : (
+              <div className="message">
+                  <strong>{user} </strong>
+                  <span>{text} </span>
+               
+                  <span style={{color: 'gray', fontSize: 'small'}}>{time}</span>
+              </div>
+          )}
+      </div>
+  );
+};
 
-const MessageList = ({ messages, roomName }) => (
-  <div className='messages'>
-    <h2> {roomName} </h2>
-    {messages.map((message, i) => (
-      <Message key={i} user={message.user_id} text={message.message} />
-    ))}
-  </div>
-);
+
+const MessageList = ({ messages, roomName, logginedUser }) => {
+  console.log(messages);  // messages를 출력
+
+  return (
+    <div className='messages'>
+      <h2>{roomName}</h2>
+      {messages.map((message, i) => (
+        <Message key={i} user={message.user_id} text={message.message} time={message.timestamp} logginedUser={logginedUser} />
+      ))}
+    </div>
+  );
+};
+
 
 const MessageForm = ({ user, onMessageSubmit, currentRoom }) => {
   const [text, setText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const message = { user_id: user, message: text, room: currentRoom };
+    const message = { user_id: user, message: text, room: currentRoom, timestamp: new Date().toLocaleString() };
     onMessageSubmit(message);
     setText('');
   };
@@ -91,8 +113,14 @@ const ChatApp = ({ name }) => {
 
   }, []);
 
+  useEffect(() => {
+    console.log('!!!messages', messages);
+}, [messages]);
+
   const handleMessageSubmit = (message) => {
+    console.log('@@@@@message',message);
     setMessages((messages) => [...messages, message]);
+
     axios.post('/send_message', message)
       .then(response => {
         if (response.status !== 201) {
@@ -132,7 +160,7 @@ const ChatApp = ({ name }) => {
         </div>
         <div className='center'>
           <UserList users={users} />
-          <MessageList messages={messages} roomName={currentRoomName} />
+          <MessageList messages={messages} roomName={currentRoomName} logginedUser = {name}/>
           <MessageForm onMessageSubmit={handleMessageSubmit} user={user} currentRoom={currentRoomName} />
         </div>
       </div>

@@ -24,7 +24,7 @@ const UserList = ({ room, onSelectUser }) => {
 
     return (
         <div className='users'>
-            <h3> 참여자들 </h3>
+            <h3>  </h3>
             <ul>
                 {users.map((user, i) => (
                     <li key={i} onClick={() => onSelectUser(user)}>

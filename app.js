@@ -23,6 +23,7 @@ const connection = mysql.createConnection({
   user: '202301513user',
   password: '202301513pw',
   database: 'chatdb'
+
 });
 
 connection.connect((err) => {
@@ -109,7 +110,7 @@ app.get('/get_rooms', (req, res) => {
 app.get('/get_messages', (req, res) => {
   const { room } = req.query;
 
-  connection.query('SELECT user_id, message FROM chat WHERE room = ?', [room], (err, results) => {
+  connection.query('SELECT user_id, message, timestamp FROM chat WHERE room = ?', [room], (err, results) => {
     if (err) {
       console.error('Error getting messages:', err);
       res.status(500).send('Database error');
@@ -120,9 +121,10 @@ app.get('/get_messages', (req, res) => {
 });
 
 app.post('/send_message', (req, res) => {
-  const { user_id, room, message } = req.body;
+  const { timestamp,user_id, room, message } = req.body;
+  console.log('timestamp!!:', timestamp);
 
-  connection.query('INSERT INTO chat (user_id, room, message) VALUES (?, ?, ?)', [user_id, room, message], (err) => {
+  connection.query('INSERT INTO chat (timestamp, user_id, room, message) VALUES (?, ?, ?, ?)', [timestamp, user_id, room, message], (err) => {
     if (err) {
       console.error('Error sending message:', err);
       res.status(500).send('Database error');

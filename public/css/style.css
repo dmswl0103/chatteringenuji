@@ -66,7 +66,20 @@ button:hover {
 
 .message {
     margin-top: 1em;
-    color: red;
+    color: black;
+}
+.MyMessage{
+    margin: 0.5em 0;
+    padding: 0.5em;
+    background-color: #F5F5F5;
+    border-radius: 5px;
+    text-align: left;
+    margin-top: 1em;
+    color: black;
+    text-align: right;
+}
+.MyMessage strong {
+    color: #3B5998;
 }
 
 .messages {
