@@ -1,80 +1,72 @@
+/* 공통 스타일 */
 body {
+    display: flex;
     width: 100%;
+    height: 100vh;
     margin: 0;
-    justify-content: center;
-    align-items: center;
     font-family: 'Helvetica Neue', 'Arial', sans-serif;
     background-color: #FAFAFA;
     color: #333;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .signup_form {
-    width: 300px; /* 너비를 조정하여 중앙에 정렬할 수 있도록 */
-    margin: 0 auto; /* 가로 방향으로 중앙에 정렬 */
-    padding: 2em;
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 300px;
+    padding: 2em;
     background-color: #FFFFFF;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center; /* 텍스트와 이미지 가운데 정렬 */
 }
 
-.signup_form img.signup_image {
-    width: 100px; /* 이미지 너비를 조정 */
-    justify-content: center;
-    align-items: center;
+.signup_image {
+    width: 100px;
     height: auto;
     margin-bottom: 1em;
 }
 
-.signup_form h3 {
-    margin-bottom: 1em;
-}
-
-.signup_form div {
-    margin-bottom: 1em;
-}
-
-.signup_form input {
+.textinput {
     width: calc(100% - 2em);
     height: 40px;
-    justify-content: center;
-    align-items: center;
     border: 1px solid #E0E0E0;
     border-radius: 20px;
-    padding: 0 1em;
+    padding: 0 15px;
+    font-size: 16px;
     box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-bottom: 1em;
 }
 
-.signup_form button {
+.textinput:focus {
+    border-color: #3B5998;
+}
+
+button {
     width: 100%;
-    justify-content: center;
-    align-items: center;
     background-color: #3B5998;
     color: #FFFFFF;
     border: none;
     border-radius: 20px;
-    padding: 10px 0;
+    padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 0.5em;
 }
 
-.signup_form button:hover {
+button:hover {
     background-color: #333;
 }
 
-button {
-    margin-bottom: 1em;
-}
-
-.users {
-    float: right;
-    margin-right: 30%;
-    color: #3B5998;
-    font-weight: bold;
+.message {
+    margin-top: 1em;
+    color: red;
 }
 
 .messages {
@@ -89,32 +81,64 @@ button {
     overflow-y: auto;
 }
 
-.message_form,
-.change_name_form {
-    padding: 1em;
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1em;
+.message {
+    margin: 0.5em 0;
+    padding: 0.5em;
+    background-color: #F5F5F5;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.message strong {
+    color: #3B5998;
+}
+
+.message_form {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 1em;
 }
 
-.textinput {
-    margin-left: 3%;
-    width: calc(100% - 6%);
-    height: 50px; /* 높이를 50px로 증가 */
+.message_form form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.message_form input {
+    width: calc(100% - 2em);
+    height: 40px;
     border: 1px solid #E0E0E0;
     border-radius: 20px;
     padding: 0 15px;
-    font-size: 18px; /* 글자 크기를 18px로 증가 */
+    font-size: 16px;
     box-sizing: border-box;
     outline: none;
     transition: all 0.3s ease;
+    margin-bottom: 1em;
 }
 
-.textinput:focus {
+.message_form button {
+    width: 100%;
+    background-color: #3B5998;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 0.5em;
+}
+
+.message_form button:hover {
+    background-color: #333;
+}
+
+.message_form .textinput:focus {
     border-color: #3B5998;
 }
 
@@ -122,26 +146,21 @@ button {
 .appbox {
     display: flex;
     flex-direction: row;
-    width: 100vw;
+    width: 80vw;
     height: 100vh;
     background-color: #FAFAFA;
     overflow: hidden; /* 스크롤 제거 */
 }
 
-.roomlist {
+.searchroom {
+    width: 30%; /* 검색 구간 너비 조정 */
     height: 100%;
-    width: 90%; 
-    border: 1px solid #E0E0E0;
-    background-color: #FFFFFF;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    padding: 1em;
+    padding: 1em; /* 패딩 추가 */
     box-sizing: border-box;
-    overflow-y: auto;
 }
 
 .center {
-    width: 60%; /* 변경: 70%에서 60%로 */
+    width: 70%; /* 채팅방 구간 너비 조정 */
     height: 100%;
     padding: 2em;
     box-sizing: border-box;
@@ -151,17 +170,65 @@ button {
     justify-content: center;
 }
 
-button {
-    background-color: #3B5998;
-    color: #FFFFFF;
-    border: none;
+.roomlist {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2em; /* 위쪽 여백 추가 */
+}
+
+.roomlist form {
+    margin-bottom: 1em; /* 입력 폼과 버튼 사이 간격 추가 */
+}
+
+.roomlist input {
+    width: 80%; /* 입력란 너비 조정 */
+    height: 40px;
+    border: 1px solid #E0E0E0;
     border-radius: 20px;
-    padding: 10px 20px;
+    padding: 0 15px;
     font-size: 16px;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.roomlist select {
+    width: 80%; /* 셀렉트 너비 조정 */
+    height: 40px;
+    margin-top: 1em; /* 셀렉트와 입력란 사이 간격 추가 */
+    border: 1px solid #E0E0E0;
+    border-radius: 20px;
+    padding: 0 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.roomlist .message {
+    margin-top: 1em;
+}
+
+
+.roomlist ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 80%; /* 방 목록 너비 조정 */
+    max-height: 70vh; /* 방 목록 최대 높이 설정 */
+    overflow-y: auto; /* 넘치는 경우 스크롤 표시 */
+}
+
+.roomlist li {
+    padding: 0.5em 1em;
+    border: 1px solid #E0E0E0;
+    border-radius: 5px;
+    margin-bottom: 0.5em;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #333;
+.roomlist li:hover {
+    background-color: #F5F5F5; /* 마우스를 가져갈 때 배경색 변경 */
 }
