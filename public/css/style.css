@@ -1,9 +1,73 @@
 body {
     width: 100%;
     margin: 0;
+    justify-content: center;
+    align-items: center;
     font-family: 'Helvetica Neue', 'Arial', sans-serif;
     background-color: #FAFAFA;
     color: #333;
+}
+
+.signup_form {
+    width: 300px; /* 너비를 조정하여 중앙에 정렬할 수 있도록 */
+    margin: 0 auto; /* 가로 방향으로 중앙에 정렬 */
+    padding: 2em;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center; /* 텍스트와 이미지 가운데 정렬 */
+}
+
+.signup_form img.signup_image {
+    width: 100px; /* 이미지 너비를 조정 */
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    margin-bottom: 1em;
+}
+
+.signup_form h3 {
+    margin-bottom: 1em;
+}
+
+.signup_form div {
+    margin-bottom: 1em;
+}
+
+.signup_form input {
+    width: calc(100% - 2em);
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #E0E0E0;
+    border-radius: 20px;
+    padding: 0 1em;
+    box-sizing: border-box;
+}
+
+.signup_form button {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    background-color: #3B5998;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 0.5em;
+}
+
+.signup_form button:hover {
+    background-color: #333;
+}
+
+button {
+    margin-bottom: 1em;
 }
 
 .users {
@@ -101,5 +165,3 @@ button {
 button:hover {
     background-color: #333;
 }
-
-

@@ -50,7 +50,7 @@ const RoomList = ({ onSelectRoom, onCreateRoom }) => {
             onCreateRoom(newRoomName);
             setNewRoomName('');
             setShowMessage(false);
-            setRooms(prevRooms => [...prevRooms, newRoomName]); // 추가된 부분
+            setRooms(prevRooms => [...prevRooms, newRoomName]);
           } else {
             console.error('Error creating room:', response.data);
           }

@@ -58,6 +58,7 @@ const SignUpForm = ({ isLogin }) => {
   
     return (
       <div className='signup_form'>
+        <img src="./images/INU.png" alt="Signup Image" className='signup_image' /> 
         <h3>회원 가입</h3>
         <form onSubmit={handleSubmit}>
           <div>

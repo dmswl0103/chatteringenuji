@@ -95,6 +95,29 @@ app.post('/create_room', (req, res) => {
   });
 });
 
+app.get('/get_rooms', (req, res) => {
+  connection.query('SELECT room FROM chatroom', (err, results) => {
+    if (err) {
+      console.error('Error getting rooms:', err);
+      res.status(500).send('Database error');
+    } else {
+      res.status(200).json(results.map(row => row.room));
+    }
+  });
+});
+
+app.get('/get_messages', (req, res) => {
+  const { room } = req.query;
+
+  connection.query('SELECT user_id, message FROM chat WHERE room = ?', [room], (err, results) => {
+    if (err) {
+      console.error('Error getting messages:', err);
+      res.status(500).send('Database error');
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
 
 app.post('/send_message', (req, res) => {
   const { user_id, room, message } = req.body;
@@ -105,19 +128,6 @@ app.post('/send_message', (req, res) => {
       res.status(500).send('Database error');
     } else {
       res.status(201).send('Message sent successfully');
-    }
-  });
-});
-
-app.get('/get_messages', (req, res) => {
-  const { room } = req.query;
-
-  connection.query('SELECT * FROM chat WHERE room = ?', [room], (err, results) => {
-    if (err) {
-      console.error('Error getting messages:', err);
-      res.status(500).send('Database error');
-    } else {
-      res.status(200).json(results);
     }
   });
 });

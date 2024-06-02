@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import RoomList from "./RoomList"; 
 import UserList from "./UserList";
+import axios from 'axios';
 import io from 'socket.io-client';
 const socket = io.connect();
 
 const Message = ({ user, text }) => (
-
   <div className="message">
     <strong>{user} :</strong>
     <span>{text}</span>
@@ -16,17 +16,17 @@ const MessageList = ({ messages, roomName }) => (
   <div className='messages'>
     <h2> {roomName} </h2>
     {messages.map((message, i) => (
-      <Message key={i} user={message.user} text={message.text} />
+      <Message key={i} user={message.user_id} text={message.message} />
     ))}
   </div>
 );
 
-const MessageForm = ({ user, onMessageSubmit }) => {
+const MessageForm = ({ user, onMessageSubmit, currentRoom }) => {
   const [text, setText] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const message = { user, text, room: user.currentRoom };
+    const message = { user_id: user, message: text, room: currentRoom };
     onMessageSubmit(message);
     setText('');
   };
@@ -40,12 +40,11 @@ const MessageForm = ({ user, onMessageSubmit }) => {
           onChange={(e) => setText(e.target.value)}
           value={text}
         />
-        <h3></h3>
+        <button type="submit">Send</button>
       </form>
     </div>
   );
 };
-
 
 const ChatApp = ({ name }) => {
   const [users, setUsers] = useState([]);
@@ -94,7 +93,15 @@ const ChatApp = ({ name }) => {
 
   const handleMessageSubmit = (message) => {
     setMessages((messages) => [...messages, message]);
-    socket.emit('send:message', message);
+    axios.post('/send_message', message)
+      .then(response => {
+        if (response.status !== 201) {
+          console.error('Error sending message:', response.data);
+        }
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+      });
   };
 
   const handleCreateRoom = (newRoomName) => {
@@ -103,14 +110,15 @@ const ChatApp = ({ name }) => {
 
   const handleSelectRoom = (room) => {
     setCurrentRoomName(room);
+
     // Load messages for the selected room
-    socket.emit('request:messages', { room }, (response) => {
-      if (response.success) {
-        setMessages(response.messages);
-      } else {
-        console.error('Error fetching messages:', response.message);
-      }
-    });
+    axios.get('/get_messages', { params: { room } })
+      .then(response => {
+        setMessages(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching messages:', error);
+      });
   };
 
   return (
@@ -118,7 +126,6 @@ const ChatApp = ({ name }) => {
       <div className='appbox'>
         <div className='searchroom'>
           <RoomList
-            rooms={rooms}
             onSelectRoom={handleSelectRoom}
             onCreateRoom={handleCreateRoom}
           />
@@ -126,7 +133,7 @@ const ChatApp = ({ name }) => {
         <div className='center'>
           <UserList users={users} />
           <MessageList messages={messages} roomName={currentRoomName} />
-          <MessageForm onMessageSubmit={handleMessageSubmit} user={user} />
+          <MessageForm onMessageSubmit={handleMessageSubmit} user={user} currentRoom={currentRoomName} />
         </div>
       </div>
     </div>
